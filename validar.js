@@ -1,42 +1,101 @@
-const formRegistro = document.getElementById('registro');
-formRegistro.addEventListener('submit', validaForm);
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("registro");
 
-const password1 = formRegistro.querySelector('#password1');
-const password2 = formRegistro.querySelector('#password2');
-const errorPassword2 = formRegistro.querySelector('#password2 ~ .invalid-feedback');
-
-// Escucha en tiempo real para corregir el error visual si los campos coinciden
-password2.addEventListener('input', comprobarPasswords);
-password1.addEventListener('input', comprobarPasswords);
-
-function comprobarPasswords() {
-    if (password1.value === password2.value) {
-        password2.classList.remove('is-invalid');
-        errorPassword2.textContent = ""; // Limpia el mensaje
+  const mensajesError = {
+    usuario: {
+      valueMissing: "El nombre de usuario es obligatorio.",
+      patternMismatch: "Solo se permiten letras y espacios.",
+      tooShort: "Debe tener al menos 3 caracteres."
+    },
+    password1: {
+      valueMissing: "La contraseña es obligatoria.",
+      patternMismatch: "Debe tener mayúsculas, minúsculas, número y símbolo.",
+      tooShort: "Debe tener al menos 8 caracteres."
+    },
+    password2: {
+      valueMissing: "Debe repetir la contraseña.",
+      patternMismatch: "Debe tener mayúsculas, minúsculas, número y símbolo.",
+      tooShort: "Debe tener al menos 8 caracteres."
+    },
+    email: {
+      valueMissing: "El correo electrónico es obligatorio.",
+      typeMismatch: "Debes introducir un correo válido (ej: usuario@dominio.com)."
     }
-}
+  };
 
-function validaForm(e) {
-    const form = e.target;
+  function marcarValido(input) {
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
+    const feedback = input.closest(".input-group").querySelector(".invalid-feedback");
+    if (feedback) feedback.textContent = "";
+  }
 
-    const errPassword = password1.value !== password2.value;
+  function marcarInvalido(input, mensaje) {
+    input.classList.remove("is-valid");
+    input.classList.add("is-invalid");
+    const feedback = input.closest(".input-group").querySelector(".invalid-feedback");
+    if (feedback) feedback.textContent = mensaje;
+  }
 
-    // Limpiar estado de validación previo
-    password2.classList.remove('is-invalid');
-    errorPassword2.textContent = "";
+  function validarCampo(input) {
+    const errores = mensajesError[input.name];
+    if (!errores) return true;
 
-    if (errPassword) {
-        password2.classList.add('is-invalid');
-        errorPassword2.textContent = "Los passwords introducidos deben de ser iguales";
-        e.preventDefault();
-        e.stopImmediatePropagation();
+    for (const tipo in input.validity) {
+      if (input.validity[tipo] && errores?.[tipo]) {
+        marcarInvalido(input, errores[tipo]);
+        return false;
+      }
     }
 
-    // Validación general del formulario
-    if (!form.checkValidity()) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
+    marcarValido(input);
+    return true;
+  }
+
+  // Validación en submit
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    let formularioValido = true;
+
+    form.querySelectorAll("input").forEach(input => {
+      if (!validarCampo(input)) formularioValido = false;
+    });
+
+    // Validar coincidencia de contraseñas
+    const pw1 = form.password1;
+    const pw2 = form.password2;
+    const pwFeedback = pw2.closest(".input-group").querySelector(".invalid-feedback");
+
+    if (pw1.value !== pw2.value) {
+      pw2.classList.remove("is-valid");
+      pw2.classList.add("is-invalid");
+      pwFeedback.textContent = "Las contraseñas introducidas deben ser iguales.";
+      formularioValido = false;
     }
 
-    form.classList.add('was-validated');
-}
+    if (formularioValido) {
+      console.log("Formulario válido. Enviando...");
+      form.submit(); // o AJAX
+    }
+  });
+
+  // Validación en tiempo real
+  form.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => {
+      validarCampo(input);
+
+      // Validar coincidencia de contraseñas si corresponde
+      if (input.name === "password1" || input.name === "password2") {
+        const pw1 = form.password1;
+        const pw2 = form.password2;
+        const pwFeedback = pw2.closest(".input-group").querySelector(".invalid-feedback");
+
+        if (pw1.value === pw2.value && pw2.value.length > 0) {
+          pw2.classList.remove("is-invalid");
+          pw2.classList.add("is-valid");
+          pwFeedback.textContent = "";
+        }
+      }
+    });
+  });
+});

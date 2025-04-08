@@ -11,7 +11,7 @@
     </head>
     <body class="bg-info">
         <div class="container mt-5">
-            <?php if (filter_has_var(INPUT_POST, 'enviar')): ?>
+            <?php if (!empty($_POST)): ?>
                 <div class="alert alert-success" id="mensaje" role="alert">
                     Registro realizado con éxito
                 </div>
@@ -29,17 +29,13 @@
                                 <input type="text" class="form-control"  placeholder="usuario" 
                                        id="usuario" name="usuario" minlength="3" autofocus required 
                                        pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ'\-`´]+(\s+[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ'\-`´ ]+){0,5}$">
-                                <div class="invalid-feedback">
-                                    El nombre de estar formado por al menos 3 caracteres de palabra
-                                </div>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="input-group my-2">
                                 <span class="input-group-text"><i class="bi bi-key"></i></span>
                                 <input type="password" class="form-control" placeholder="contraseña" 
                                        id="password1" name="password1" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}">                      
-                                <div class="invalid-feedback">
-                                    El password debe tener una minúscula, mayúscula, digito y caracter espercial
-                                </div>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="input-group my-2">
                                 <span class="input-group-text"><i class="bi bi-key"></i></span>
@@ -52,9 +48,7 @@
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                 <input type="email" class="form-control" placeholder="e-Mail" 
                                        id="email" name="email" required>
-                                <div class="invalid-feedback">
-                                    El correo debe tener un formato correcto
-                                </div>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="text-end">
                                 <input type="submit" value="Registrar" class="btn btn-info" name="enviar">
